@@ -5,7 +5,7 @@ from io import BytesIO
 from PIL import Image
 
 # Initialize YOLOv8 object detector
-yolov8_detector = YOLOv8('./models/yolov8n.onnx')
+yolov8_detector = YOLOv8('./models/yolov8s.onnx')
 
 def main(event, context):
 

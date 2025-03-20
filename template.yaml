@@ -10,7 +10,7 @@ Resources:
       CodeUri: lambda-codebase/
       Handler: app.main
       Runtime: python3.9
-      MemorySize: 10240
+      MemorySize: 3007
       Timeout: 60
       FunctionUrlConfig:
         AuthType: NONE

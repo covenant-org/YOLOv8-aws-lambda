@@ -2,7 +2,7 @@ import requests
 import cv2
 import base64
 
-IMG_PATH = './elevate-nYgy58eb9aw-unsplash.jpg'
+IMG_PATH = './1605820957 (1).png'
 API_URL = 'REPLACE_WITH_ENDPOINT_URL'
 
 # encode image to b64
