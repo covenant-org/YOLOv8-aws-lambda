@@ -3,14 +3,20 @@ import json
 import base64
 from io import BytesIO
 from PIL import Image
+import logging
 
 # Initialize YOLOv8 object detector
 yolov8_detector = YOLOv8('./models/yolov8s.onnx')
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 def main(event, context):
 
+    logger.debug("Event received: %s", event)
+
     # get payload
-    body = json.loads(event['body'])
+    body = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
 
     # get params
     img_b64 = body['image']

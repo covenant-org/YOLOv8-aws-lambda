@@ -1,3 +1,4 @@
 git+https://github.com/trainyolo/YOLO-ONNX.git
+numpy==1.24.0
 onnxruntime==1.16.0
 pillow==11.1.0

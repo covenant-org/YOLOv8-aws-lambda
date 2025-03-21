@@ -1,9 +1,15 @@
 import requests
 import cv2
 import base64
+import os
 
-IMG_PATH = './1605820957 (1).png'
-API_URL = 'REPLACE_WITH_ENDPOINT_URL'
+PATH = os.path.dirname(os.path.abspath(__file__))
+
+IMG_PATH = os.path.join(PATH, '1605820957 (1).png')
+with open(os.path.join(PATH, 'lambda_api_url.txt'), 'r') as file:
+    API_URL = file.readline().strip()
+
+
 
 # encode image to b64
 with open(IMG_PATH, 'rb') as f:
@@ -11,14 +17,16 @@ with open(IMG_PATH, 'rb') as f:
 
 # trigger api
 result = requests.get(API_URL, json={"image": img_b64})
-
+print("API response received")
 # extract detections
-detections = result.json()['detections']
-print(detections)
 
+detections = result.json()['detections']
+people_detection = [det for det in detections if det['class_id'] == 0]
+people_count = len(people_detection)
+print(f"Number of people detected: {people_count}")
 # display detections
 img = cv2.imread(IMG_PATH)
-for det in detections:
+for det in people_detection:
     x0,y0,x1,y1 = det['bbox']
-    img = cv2.rectangle(img, (x0,y0), (x1,y1), (255,0,0), 4)
-cv2.imwrite('./output.jpg', img)
+    img = cv2.rectangle(img, (x0,y0), (x1,y1), (0,0,255), 4)
+cv2.imwrite(os.path.join(PATH, 'output.png'), img)
