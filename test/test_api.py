@@ -18,6 +18,7 @@ with open(IMG_PATH, 'rb') as f:
 # trigger api
 result = requests.get(API_URL, json={"image": img_b64})
 print("API response received")
+print(result.json())
 # extract detections
 
 detections = result.json()['detections']

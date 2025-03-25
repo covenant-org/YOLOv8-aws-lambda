@@ -18,19 +18,21 @@ logger.setLevel("INFO")
 
 def main(event, context):
 
-    logger.info("Event received: %s", event)
-    print("Event received: ", event)
+    #logger.info("Event received: %s", event)
+    #print("Event received: ", event)
 
     if 'body' in event:
         # get payload
         try: 
             body = json.loads(event['body']) if isinstance(event['body'], str) else event['body']
-
             # get params
             img_b64 = body['image']
             size = body.get('size', 640)
             conf_thres = body.get('conf_thres', 0.3)
             iou_thres = body.get('iou_thres', 0.5)
+            logger.info("Image size: %s", size)
+            logger.info("Confidence threshold: %s", conf_thres)
+            logger.info("IOU threshold: %s", iou_thres)
 
             # open image
             img = Image.open(BytesIO(base64.b64decode(img_b64.encode('ascii'))))
@@ -39,12 +41,10 @@ def main(event, context):
             detections = yolov8_detector(img, size=size, conf_thres=conf_thres, iou_thres=iou_thres)
 
             # return result
-            return {
-                "statusCode": 200,
-                "body": json.dumps({
-                    "detections": detections
-                }),
-            }
+
+            result = {"statusCode": 200, "body": json.dumps({"detections": detections})}
+            logger.info("Result: %s", result)
+            return result
         except Exception as e:
             logger.error("Error: %s", e)
     else:
@@ -54,6 +54,21 @@ def main(event, context):
         try: 
             response = s3.get_object(Bucket=bucket, Key=key)
             logger.info("S3 response: %s", response)
+            body = response['Body'].read()
+            img = Image.open(BytesIO(body))
+            logger.info("Image opened")
+            size = 640
+            conf_thres = 0.3
+            iou_thres = 0.5
+
+            # infer result
+            detections = yolov8_detector(img, size=size, conf_thres=conf_thres , iou_thres=iou_thres)
+
+            # return result
+            result = {"statusCode": 200, "body": json.dumps({"detections": detections})}
+            logger.info("Result: %s", result)
+            return result
+        
         except Exception as e:
             logger.error("Error: %s", e)
             raise e
