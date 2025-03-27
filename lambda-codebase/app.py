@@ -6,6 +6,9 @@ from PIL import Image
 import logging
 import boto3
 import urllib
+import upload
+import os
+from datetime import datetime
 
 # Initialize S3 client
 s3 = boto3.client('s3')
@@ -20,6 +23,8 @@ def main(event, context):
 
     #logger.info("Event received: %s", event)
     #print("Event received: ", event)
+
+    timestamp = f'{datetime.now().strftime("%Y%m%d_%H%M%S")}'
 
     if 'body' in event:
         # get payload
@@ -39,12 +44,25 @@ def main(event, context):
 
             # infer result
             detections = yolov8_detector(img, size=size, conf_thres=conf_thres, iou_thres=iou_thres)
+            people_detection = [det for det in detections if det['class_id'] == 0]
 
             # return result
 
-            result = {"statusCode": 200, "body": json.dumps({"detections": detections})}
+            result = {"statusCode": 200, "body": json.dumps({"detections": people_detection})}
             logger.info("Result: %s", result)
+
+            '''	
+            with open(timestamp + '.json', 'w') as f:
+                f.write(json.dumps(result))
+
+            with open(os.path.join('bucket_specs.txt'), 'r') as file:
+                bucket = file.readline().strip()
+            
+
+            upload.upload_to_s3(timestamp + '.json', bucket, 'results/detection_json/' + timestamp + '.json')
+            '''
             return result
+        
         except Exception as e:
             logger.error("Error: %s", e)
     else:
@@ -64,8 +82,10 @@ def main(event, context):
             # infer result
             detections = yolov8_detector(img, size=size, conf_thres=conf_thres , iou_thres=iou_thres)
 
+            people_detection = [det for det in detections if det['class_id'] == 0]
+
             # return result
-            result = {"statusCode": 200, "body": json.dumps({"detections": detections})}
+            result = {"statusCode": 200, "body": json.dumps({"detections": people_detection})}
             logger.info("Result: %s", result)
             return result
         
